@@ -1,0 +1,7 @@
+
+- Forest
+
+Allow mutliple root points, each using a separate storage backend config.
+
+- Preview pane
+- Multi-tab view
