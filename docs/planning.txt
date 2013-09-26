@@ -1,0 +1,45 @@
+
+
+directory:
+
+ - list
+ GET /fm/{path}
+
+ {
+    'files': [
+        {
+            'name':
+            'size':
+            'created':
+            'modified':
+            'content-type':
+
+            ?? permissions ??
+
+            # Optional
+            'dimensions': {x/y}
+            'thumbnail': {url}
+        },
+    ]
+
+ - create
+ POST /fm/{path} ?dirname={newdir}
+
+ - delete
+ DELETE /fm/{path}
+    + prune ?
+    + recursive ?
+
+file:
+
+ - upload
+ POST /fm/{path} ?file={file}&name={name}
+
+ - rename -> {copy + delete}
+ PUT /fm/{path} ?to={newname}
+
+ - delete
+ DELETE /fm/{path}
+
+ - copy
+
