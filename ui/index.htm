@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="w2ui/w2ui-1.2.min.css" />
+    <script src="js/jquery.min.js"></script>
+    <script type="text/javascript" src="w2ui/w2ui-1.2.min.js"></script>
+</head>
+<body>
+	<div id="toolbar"></div>
+    <div id="layout" style="width: 100%; height: 600px;"></div>
+</body>
+
+<script>
+
+function ls(path, parent_id){
+	
+	var filesAndFolders = [];
+	var folders = [];
+	var files = [];
+	if(path == "/")
+		url = "test/root.json"
+	else
+		url = "test/folder.json";
+
+	$.ajax({
+		url: url
+	}).done(function(data){
+		
+		filesAndFolders = data['files'];
+
+		$.each(filesAndFolders, function(i, item){
+			if(item['content-type'] === "folder"){
+				var folder = {};
+				folder.id = parent_id + "-" + i;
+				folder.img = 'icon-folder';
+				folder.text = item.name;
+				folders.push(folder);
+			}else{
+				item['recid'] = i;
+				files.push(item);
+			}
+		});
+		w2ui['sidebar'].expand(parent_id);
+		w2ui['sidebar'].add(parent_id, folders);
+
+		w2ui['fileListing'].clear();
+		w2ui['fileListing'].add(files);
+
+	});
+
+
+}
+
+$(function () {
+
+	$('#toolbar').w2toolbar({
+		name: 'toolbar',
+		items: [
+			/*
+			{ type: 'check',  id: 'item1', caption: 'Check', img: 'icon-page', checked: true },
+			{ type: 'break',  id: 'break0' },
+			{ type: 'menu',   id: 'item2', caption: 'Drop Down', img: 'icon-folder', items: [
+				{ text: 'Item 1', icon: 'icon-page' }, 
+				{ text: 'Item 2', icon: 'icon-page' }, 
+				{ text: 'Item 3', value: 'Item Three', icon: 'icon-page' }
+			]},
+			//*/
+			{ type: 'radio',  id: 'mkdir',  group: '1', caption: 'New Folder', img: 'icon-add', callback:  function(){ 
+					var foldername = prompt("Enter folder name to create");
+					if(foldername){
+						// make call to server
+
+						// response should be directory list
+
+						// 
+					}
+				} 
+			},
+			{ type: 'radio',  id: 'upload',  group: '1', caption: 'Upload', img: 'icon-add', callback:  function(){ 
+  					$("#fileUpload").trigger('click');
+				} 
+			 },
+			{ type: 'break', id: 'break1' },
+			{ type: 'radio',  id: 'refresh',  group: '1', caption: 'Refresh', img: 'icon-refresh' },
+			{ type: 'radio',  id: 'test',  group: '1', caption: 'Test', img: 'icon-refresh' },
+			{ type: 'spacer' },
+			{ type: 'button',  id: 'item5',  caption: 'Item 5', img: 'icon-save' }
+		],
+		onClick: function(target, eventData) {
+			
+			if(typeof(eventData.item.callback) !== "undefined")
+			{
+				eventData.item.callback();	
+			}
+		}		
+	});
+
+	// first define a layout
+    $('#layout').w2layout({
+        name: 'layout',
+        panels: [
+            { type: 'left', size: 200, resizable: true, style: 'background-color: #F5F6F7;', content: '' },
+            { type: 'main', style: 'background-color: #F5F6F7; padding: 5px;' }
+        ]
+    });
+
+	w2ui['layout'].content('main', $().w2grid({
+		name: 'fileListing',
+		header: 'File List'
+	    ,columns: [
+	        { field: 'recid', caption: '', size: '0%', sortable: true, resizable: true },
+	        { field: 'name', caption: 'Name', size: '40%', sortable: true, resizable: true },
+	        { field: 'size', caption: 'Size', size: '20%', sortable: true, resizable: true },
+	        { field: 'modified', caption: 'Modified Date', size: '20%', resizable: true },
+	        { field: 'created', caption: 'Creation Date', size: '20%', resizable: true },
+	    ]
+	    ,records: [
+        
+        ]
+	}));
+
+    w2ui['layout'].content('left', $().w2sidebar({
+		name: 'sidebar',
+		img: null,
+		nodes: [ 
+			{ id: 'level-1', text: 'Directory', img: 'icon-folder', expanded: true, group: true,
+			  nodes: [ { id: 'level-1-1', text: '/', img: 'icon-folder' } ]
+			}
+		],
+		onClick: function (cmd,eventData) {
+			var item = w2ui['sidebar'].get(cmd);
+			var fullpath = item.text;
+			var parent;
+			// find all parents get 
+			for(parent = item; (parent = parent.parent) != null;){
+				if(typeof(parent['img']) == "undefined") break;
+				else if(parent['img'] !== "icon-folder") break;
+				else if(parent['id'] == "level-1") break;
+				fullpath = parent.text + (parent.text == "/" ? "": "/") + fullpath;
+			}
+			ls(fullpath, cmd);
+		}
+    }));
+});
+</script>
+
+     <input type="file" id="fileUpload" style="display:none">
+
+</html>
