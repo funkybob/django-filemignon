@@ -19,13 +19,13 @@ settings.configure(
         'django.contrib.sessions',
         'django.contrib.admin',
         'filemignon',
-        'filemignon.tests',),
+        'tests',),
     FILEMIGNON_STORAGE=Storage(),)
 
 
 from django.test.simple import DjangoTestSuiteRunner
 test_runner = DjangoTestSuiteRunner(verbosity=1)
 
-failures = test_runner.run_tests(['filemignon',])
+failures = test_runner.run_tests(['tests',])
 if failures:
     sys.exit(failures)
